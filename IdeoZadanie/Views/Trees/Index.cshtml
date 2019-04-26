@@ -4,32 +4,30 @@
     ViewBag.Title = "Index";
 }
 
-@helper DisplayList(IdeoZadanie.Models.Tree tree, int shift)
+@helper DisplayList(IdeoZadanie.Models.Tree tree)
 {
-    @*<tr>
-            <td>
-                @for (int i = 0; i < shift; i++)
-                {
-                    <span>&emsp;</span>
-                }
-                <span>></span>
-                @Html.DisplayFor(modelItem => tree.Name)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id = tree.Id }) |
-                @Html.ActionLink("Details", "Details", new { id = tree.Id }) |
-                @Html.ActionLink("Delete", "Delete", new { id = tree.Id })
-            </td>
-        </tr>*@
-
     <li>
-        @if (tree.Childrens.Count > 1)
+        <div class="btn-group" role="group" aria-label="...">
+            <a href='@Url.Action("Delete", "Trees", new { id = tree.Id})'>
+                @*<button type="button" class="close" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>*@
+                <span class="glyphicon glyphicon-trash"></span>
+            </a>
+            <a href='@Url.Action("Edit", "Trees", new { id = tree.Id})'>
+                <span class="glyphicon glyphicon-pencil"></span>
+            </a>
+            <a href='@Url.Action("Create", "Trees", new { id = tree.Id})'>
+                <span class="glyphicon glyphicon-plus"></span>
+            </a>
+        </div>
+        @if (tree.Childrens.Where(tr => tr.Id != tree.Id).ToList().Count > 0)
         {
             <span class="caretList">@Html.DisplayFor(modelItem => tree.Name)</span>
             <ul class="nested">
                 @foreach (var t in tree.Childrens.Where(tr => tr.Id != tree.Id))
                 {
-                    @DisplayList(t, shift + 1);
+                    @DisplayList(t);
                 }
             </ul>
         } else
@@ -44,24 +42,10 @@
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
-@*<table class="table">
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-
-        @foreach (var item in Model.Where(tree => tree.ParentId == tree.Id))
-        {
-            @DisplayList(item, 0)
-        }
-
-    </table>*@
 
 <ul id="list">
     @foreach (var item in Model.Where(tree => tree.ParentId == tree.Id))
     {
-        @DisplayList(item, 0)
+        @DisplayList(item)
     }
 </ul>

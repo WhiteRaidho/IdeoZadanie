@@ -15,8 +15,8 @@ namespace IdeoZadanie.Controllers
     {
         private TreeContext db = new TreeContext();
 
-        // GET: Trees
-        public ActionResult Index()
+        // GET: Trees/2
+        public ActionResult Index(int? id)
         {
             var trees = db.Trees.Include(t => t.Parent);
             return View(trees.ToList());
@@ -38,9 +38,20 @@ namespace IdeoZadanie.Controllers
         }
 
         // GET: Trees/Create
-        public ActionResult Create()
+        public ActionResult Create(int? id)
         {
-            ViewBag.ParentId = new SelectList(db.Trees, "Id", "Name");
+            ViewBag.Parent = null;
+            ViewBag.ParentName = null;
+            if (id != null)
+            {
+                Tree parent = db.Trees.SingleOrDefault(t => t.Id == id);
+                if (parent != null)
+                {
+                    ViewBag.Parent = id;
+                    ViewBag.ParentName = parent.Name;
+                }
+            }
+            //ViewBag.ParentId = new SelectList(db.Trees, "Id", "Name");
             return View();
         }
 
@@ -49,11 +60,28 @@ namespace IdeoZadanie.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Name,ParentId")] Tree tree)
+        public ActionResult Create([Bind(Include = "Id,Name")] Tree tree, int? id)
         {
             if (ModelState.IsValid)
             {
                 db.Trees.Add(tree);
+                db.SaveChanges();
+                if (id != null)
+                {
+                    Tree parent = db.Trees.SingleOrDefault(t => t.Id == id);
+                    if (parent != null)
+                    {
+                        tree.Parent = parent;
+                    }
+                    else
+                    {
+                        tree.Parent = tree;
+                    }
+                }
+                else
+                {
+                    tree.Parent = tree;
+                }
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -91,7 +119,7 @@ namespace IdeoZadanie.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.ParentId = new SelectList(db.Trees, "Id", "Name", tree.ParentId);
+            ViewBag.ParentId = GetSelectListFor(tree);
             return View(tree);
         }
 
@@ -116,15 +144,27 @@ namespace IdeoZadanie.Controllers
         public ActionResult DeleteConfirmed(int id)
         {
             Tree tree = db.Trees.Find(id);
-            db.Trees.Remove(tree);
+            RemoveChildrensFromDatabase(tree);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        private void RemoveChildrensFromDatabase(Tree tree)
+        {
+            if (tree.Childrens.Where(t => t.Id != tree.Id).ToList().Count > 0)
+            {
+                foreach (Tree t in tree.Childrens.Where(t => t.Id != tree.Id).ToList())
+                {
+                    RemoveChildrensFromDatabase(t);
+                }
+            }
+            db.Trees.Remove(tree);
         }
 
         // GET: Trees/Move/5
         public ActionResult Move(int? id)
         {
-            if(id == null)
+            if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
@@ -133,7 +173,7 @@ namespace IdeoZadanie.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.ParentId = new SelectList(db.Trees, "Id", "Name", tree.ParentId);
+            ViewBag.ParentId = GetSelectListFor(tree);
             return View(tree);
         }
 
@@ -148,7 +188,7 @@ namespace IdeoZadanie.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
-            ViewBag.ParentId = new SelectList(db.Trees, "Id", "Name", tree.ParentId);
+            ViewBag.ParentId = GetSelectListFor(tree);
             return View(tree);
         }
 
@@ -164,16 +204,16 @@ namespace IdeoZadanie.Controllers
         private SelectList GetSelectListFor(Tree tree)
         {
             List<Tree> trees = GetListWithoutChildrens(db.Trees.ToList(), tree);
-            trees.Add(tree);
-            
+            if (!trees.Contains(tree)) trees.Add(tree);
+
             return new SelectList(trees, "Id", "Name", tree.ParentId); ;
         }
 
         private List<Tree> GetListWithoutChildrens(List<Tree> trees, Tree tree)
         {
-            foreach(Tree t in tree.Childrens)
+            foreach (Tree t in tree.Childrens)
             {
-                if(t.Childrens.Count > 1)
+                if (t.Childrens.Count > 1 && t.Id != tree.Id)
                 {
                     trees = GetListWithoutChildrens(trees, t);
                 }
