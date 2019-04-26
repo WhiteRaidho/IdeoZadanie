@@ -38,3 +38,26 @@ ul, #list {
 .active {
     display: block;
 }
+
+.detailContainer {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto;
+    grid-template-areas: "treeList detailName" "treeList detailList";
+}
+
+.treeList {
+    grid-area: treeList;
+}
+
+.detailName {
+    grid-area: detailName;
+}
+
+.detailList {
+    grid-area: detailList;
+}
+
+.noMargin {
+    margin-top: 0px;
+}

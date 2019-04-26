@@ -18,6 +18,7 @@ namespace IdeoZadanie.Controllers
         // GET: Trees/2
         public ActionResult Index(int? id)
         {
+            ViewBag.SelectedId = id;
             var trees = db.Trees.Include(t => t.Parent);
             return View(trees.ToList());
         }
@@ -60,7 +61,7 @@ namespace IdeoZadanie.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Name")] Tree tree, int? id)
+           public ActionResult Create([Bind(Include = "Id,Name")] Tree tree, int? id)
         {
             if (ModelState.IsValid)
             {
