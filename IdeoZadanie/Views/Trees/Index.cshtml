@@ -70,7 +70,7 @@
         @if (ViewBag.SelectedId != null)
         {
             IdeoZadanie.Models.Tree t = Model.Where(tree => tree.Id == ViewBag.SelectedId).SingleOrDefault();
-            <div class="detailName">
+            <div class="detailName">    
                 <h2 class="noMargin">@Html.DisplayFor(tree => t.Name)</h2>
                 <h6>@GetPath(t)</h6>
             </div>

@@ -8,6 +8,7 @@ using System.Web;
 using System.Web.Mvc;
 using IdeoZadanie.DAL;
 using IdeoZadanie.Models;
+using System.Data.Entity.Infrastructure;
 
 namespace IdeoZadanie.Controllers
 {
@@ -214,7 +215,7 @@ namespace IdeoZadanie.Controllers
         {
             foreach (Tree t in tree.Childrens)
             {
-                if (t.Childrens.Count > 1 && t.Id != tree.Id)
+                if (t.Childrens.Count > 0 && t.Id != tree.Id)
                 {
                     trees = GetListWithoutChildrens(trees, t);
                 }
