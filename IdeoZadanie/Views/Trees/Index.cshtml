@@ -76,7 +76,7 @@
             </div>
             <div class="detailList">
                 <ul id="list">
-                    @foreach (IdeoZadanie.Models.Tree tree in t.Childrens)
+                    @foreach (IdeoZadanie.Models.Tree tree in t.Childrens.Where(tr => tr.Id != t.Id))
                     {
                         <li>
                             @Html.ActionLink(tree.Name, "Index", new { id = tree.Id })
