@@ -16,6 +16,11 @@ namespace IdeoZadanie.DAL
             };
             trees.ForEach(t => context.Trees.Add(t));
             context.SaveChanges();
+            foreach (Tree t in trees)
+            {
+                t.Parent = t;
+            }
+            context.SaveChanges();
         }
     }
 }
